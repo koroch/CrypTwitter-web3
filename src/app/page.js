@@ -3,16 +3,21 @@ import Head from "next/head";
 
 import { doLogin } from "@/services/Web3Service";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [message, setMessage] = useState("");
 
+  const { push } = useRouter();
+  const [message, setMessage] = useState("");
 
   function btnLoginClick() {
     setMessage("Conectando com a MataMask... aguarde!...");
     doLogin()
-      .then(wallet => setMessage(wallet))
-      .catch(error => setMessage(error))
+      .then(wallet => push("/timeline"))
+      .catch(error => {
+        console.error(error)
+        setMessage(error.message)
+      })
   }
 
   return (

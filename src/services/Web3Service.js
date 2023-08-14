@@ -1,4 +1,7 @@
 import Web3 from "web3";
+import ABI from "./ABI.json";
+
+const CONTRACT_ADDRESS = "0xa87e58c4362f7ef78af1d43e89a6657fbf7132bd";
 
 export async function doLogin() {
     if (!window.ethereum) throw new Error("Not MetaMask found!");
@@ -11,3 +14,29 @@ export async function doLogin() {
 
     return accounts[0];
 }
+
+function getContract() {
+    if (!window.ethereum) throw new Error("Not MetaMask found!");
+
+    const web3 = new Web3(window.ethereum);
+    const from = localStorage.getItem("wallet");
+
+    return new web3.eth.Contract(ABI, CONTRACT_ADDRESS, { from });
+}
+
+export async function addTweet(text) {
+    const contract = getContract();
+    return contract.methods.addTweet(text).send();
+}
+
+export async function changeUsername(newName) {
+    const contract = getContract();
+    return contract.methods.changeUsername(newName).send();
+}
+
+export async function getLastTweets(page) {
+    const contract = getContract();
+    const tweets = await contract.methods.getLastTweets(page).call();
+    return tweets.map(item => { return { ...item } }).filter(item => item.text !== "");
+}
+
